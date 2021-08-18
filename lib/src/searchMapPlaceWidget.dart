@@ -222,7 +222,6 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
     String place = prediction.description;
 
     return MaterialButton(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       onPressed: () => _selectPlace(prediction: prediction),
       child: ListTile(
         title: Text(
