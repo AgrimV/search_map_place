@@ -162,11 +162,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
             decoration: widget.decoration ?? _containerDecoration(),
             child: Column(
               children: <Widget>[
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 12.0, right: 12.0, top: 4),
-                  child: child,
-                ),
+                child,
                 if (_placePredictions.length > 0)
                   Opacity(
                     opacity: _listOpacity.value,
