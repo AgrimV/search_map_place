@@ -10,6 +10,8 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.iconColor = Colors.blue,
     this.onSelected,
     this.onSearch,
+    this.onChanged,
+    this.afterClear,
     this.language = 'en',
     this.location,
     this.radius,
@@ -36,6 +38,11 @@ class SearchMapPlaceWidget extends StatefulWidget {
 
   /// The callback that is called when the user taps on the search icon.
   final void Function(Place place) onSearch;
+
+  /// The callback that is called for every change in input
+  final void Function(String value) onChanged;
+
+  final void Function() afterClear;
 
   /// Language used for the autocompletion.
   ///
@@ -154,29 +161,24 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   WIDGETS
   */
   Widget _searchContainer({Widget child}) {
-    return AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, _) {
-          return Container(
-            height: _containerHeight.value,
-            decoration: widget.decoration ?? _containerDecoration(),
-            child: Column(
-              children: <Widget>[
-                child,
-                if (_placePredictions.length > 0)
-                  Opacity(
-                    opacity: _listOpacity.value,
-                    child: Column(
-                      children: <Widget>[
-                        for (var prediction in _placePredictions)
-                          _placeOption(Place.fromJSON(prediction, geocode)),
-                      ],
-                    ),
-                  ),
-              ],
+    return Container(
+      decoration: widget.decoration ?? _containerDecoration(),
+      child: Column(
+        children: <Widget>[
+          child,
+          if (_placePredictions.length > 0)
+            Opacity(
+              opacity: _listOpacity.value,
+              child: Column(
+                children: <Widget>[
+                  for (var prediction in _placePredictions)
+                    _placeOption(Place.fromJSON(prediction, geocode)),
+                ],
+              ),
             ),
-          );
-        });
+        ],
+      ),
+    );
   }
 
   Widget _searchInput(BuildContext context) {
@@ -188,6 +190,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
               decoration: widget.inputDecoration ?? _inputStyle(),
               controller: _textEditingController,
               onSubmitted: (_) => _selectPlace(),
+              onChanged: widget.onChanged,
               onEditingComplete: _selectPlace,
               autofocus: false,
               focusNode: _fn,
@@ -201,8 +204,10 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
           if (widget.hasClearButton)
             GestureDetector(
               onTap: () {
-                if (_crossFadeState == CrossFadeState.showSecond)
+                if (_crossFadeState == CrossFadeState.showSecond) {
                   _textEditingController.clear();
+                  widget.afterClear();
+                }
               },
               // child: Icon(_inputIcon, color: this.widget.iconColor),
               child: AnimatedCrossFade(
