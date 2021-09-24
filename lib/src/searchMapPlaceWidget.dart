@@ -8,9 +8,6 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.hasClearButton = true,
     this.clearIcon = const Icon(Icons.clear),
     this.iconColor = Colors.blue,
-    this.fillColor,
-    this.hintColor,
-    this.borderColor,
     this.prefixIcon,
     this.onSelected,
     this.onSearch,
@@ -22,6 +19,8 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.strictBounds = false,
     this.placeType,
     this.darkMode = false,
+    this.inputDecoration,
+    this.style,
     this.decoration,
     this.key,
   })  : assert((location == null && radius == null) ||
@@ -90,9 +89,11 @@ class SearchMapPlaceWidget extends StatefulWidget {
   /// Used to define the style/decoration for the search container
   final BoxDecoration decoration;
 
-  final Color hintColor;
-  final Color borderColor;
-  final Color fillColor;
+  /// Used to define the style/decoration for the text input field
+  final InputDecoration inputDecoration;
+
+  final TextStyle style;
+
   @override
   _SearchMapPlaceWidgetState createState() => _SearchMapPlaceWidgetState();
 }
@@ -188,20 +189,39 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
 
   Widget _searchInput(BuildContext context) {
     return Center(
-      child: Expanded(
-        child: TextField(
-          decoration: _inputStyle(),
-          controller: _textEditingController,
-          onSubmitted: (_) => _selectPlace(),
-          onChanged: widget.onChanged,
-          onEditingComplete: _selectPlace,
-          autofocus: false,
-          focusNode: _fn,
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * 0.04,
-            color: widget.darkMode ? Colors.grey[100] : Colors.grey[850],
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              decoration: widget.inputDecoration,
+              controller: _textEditingController,
+              onSubmitted: (_) => _selectPlace(),
+              onChanged: widget.onChanged,
+              onEditingComplete: _selectPlace,
+              autofocus: false,
+              focusNode: _fn,
+              style: widget.style,
+            ),
           ),
-        ),
+          Container(width: 15),
+          if (widget.hasClearButton)
+            GestureDetector(
+              onTap: () {
+                if (_crossFadeState == CrossFadeState.showSecond) {
+                  _textEditingController.clear();
+                  widget.afterClear();
+                }
+              },
+              // child: Icon(_inputIcon, color: this.widget.iconColor),
+              child: AnimatedCrossFade(
+                crossFadeState: _crossFadeState,
+                duration: Duration(milliseconds: 300),
+                firstChild: widget.icon,
+                secondChild: Icon(Icons.clear, color: widget.iconColor),
+              ),
+            ),
+          if (!widget.hasClearButton) widget.icon
+        ],
       ),
     );
   }
@@ -233,29 +253,6 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   /*
   STYLING
   */
-  InputDecoration _inputStyle() {
-    return InputDecoration(
-      filled: true,
-      fillColor: widget.fillColor,
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      hintText: this.widget.placeholder,
-      prefixIcon: this.widget.prefixIcon,
-      suffixIcon: GestureDetector(
-        onTap: () {
-          _textEditingController.clear();
-          widget.afterClear();
-        },
-        // child: Icon(_inputIcon, color: this.widget.iconColor),
-        child: widget.icon,
-      ),
-      border: InputBorder.none,
-      contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-      hintStyle: TextStyle(
-        color: widget.hintColor,
-      ),
-    );
-  }
-
   BoxDecoration _containerDecoration() {
     return BoxDecoration(
       color: widget.darkMode ? Colors.grey[800] : Colors.white,
