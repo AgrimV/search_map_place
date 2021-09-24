@@ -8,6 +8,9 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.hasClearButton = true,
     this.clearIcon = const Icon(Icons.clear),
     this.iconColor = Colors.blue,
+    this.fillColor,
+    this.hintColor,
+    this.borderColor,
     this.prefixIcon,
     this.onSelected,
     this.onSearch,
@@ -87,8 +90,9 @@ class SearchMapPlaceWidget extends StatefulWidget {
   /// Used to define the style/decoration for the search container
   final BoxDecoration decoration;
 
-  /// Used to define the style/decoration for the text input field
-
+  final Color hintColor;
+  final Color borderColor;
+  final Color fillColor;
   @override
   _SearchMapPlaceWidgetState createState() => _SearchMapPlaceWidgetState();
 }
@@ -231,6 +235,9 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   */
   InputDecoration _inputStyle() {
     return InputDecoration(
+      filled: true,
+      fillColor: widget.fillColor,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
       hintText: this.widget.placeholder,
       prefixIcon: this.widget.prefixIcon,
       suffixIcon: GestureDetector(
@@ -244,7 +251,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
       border: InputBorder.none,
       contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
       hintStyle: TextStyle(
-        color: widget.darkMode ? Colors.grey[100] : Colors.grey[850],
+        color: widget.hintColor,
       ),
     );
   }
