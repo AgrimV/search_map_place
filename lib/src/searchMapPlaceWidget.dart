@@ -88,7 +88,6 @@ class SearchMapPlaceWidget extends StatefulWidget {
   final BoxDecoration decoration;
 
   /// Used to define the style/decoration for the text input field
-  final InputDecoration inputDecoration;
 
   @override
   _SearchMapPlaceWidgetState createState() => _SearchMapPlaceWidgetState();
