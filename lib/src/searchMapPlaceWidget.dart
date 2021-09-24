@@ -8,6 +8,7 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.hasClearButton = true,
     this.clearIcon = const Icon(Icons.clear),
     this.iconColor = Colors.blue,
+    this.prefixIcon,
     this.onSelected,
     this.onSearch,
     this.onChanged,
@@ -19,7 +20,6 @@ class SearchMapPlaceWidget extends StatefulWidget {
     this.placeType,
     this.darkMode = false,
     this.decoration,
-    this.inputDecoration,
     this.key,
   })  : assert((location == null && radius == null) ||
             (location != null && radius != null)),
@@ -60,6 +60,8 @@ class SearchMapPlaceWidget extends StatefulWidget {
   ///
   /// See [Location Biasing and Location Restrict](https://developers.google.com/places/web-service/autocomplete#location_biasing) in the documentation.
   final int radius;
+
+  final Widget prefixIcon;
 
   /// Returns only those places that are strictly within the region defined by location and radius. This is a restriction, rather than a bias, meaning that results outside this region will not be returned even if they match the user input.
   final bool strictBounds;
@@ -183,42 +185,20 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
 
   Widget _searchInput(BuildContext context) {
     return Center(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              decoration: widget.inputDecoration ?? _inputStyle(),
-              controller: _textEditingController,
-              onSubmitted: (_) => _selectPlace(),
-              onChanged: widget.onChanged,
-              onEditingComplete: _selectPlace,
-              autofocus: false,
-              focusNode: _fn,
-              style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width * 0.04,
-                color: widget.darkMode ? Colors.grey[100] : Colors.grey[850],
-              ),
-            ),
+      child: Expanded(
+        child: TextField(
+          decoration: widget.inputDecoration ?? _inputStyle(),
+          controller: _textEditingController,
+          onSubmitted: (_) => _selectPlace(),
+          onChanged: widget.onChanged,
+          onEditingComplete: _selectPlace,
+          autofocus: false,
+          focusNode: _fn,
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.04,
+            color: widget.darkMode ? Colors.grey[100] : Colors.grey[850],
           ),
-          Container(width: 15),
-          if (widget.hasClearButton)
-            GestureDetector(
-              onTap: () {
-                if (_crossFadeState == CrossFadeState.showSecond) {
-                  _textEditingController.clear();
-                  widget.afterClear();
-                }
-              },
-              // child: Icon(_inputIcon, color: this.widget.iconColor),
-              child: AnimatedCrossFade(
-                crossFadeState: _crossFadeState,
-                duration: Duration(milliseconds: 300),
-                firstChild: widget.icon,
-                secondChild: Icon(Icons.clear, color: widget.iconColor),
-              ),
-            ),
-          if (!widget.hasClearButton) widget.icon
-        ],
+        ),
       ),
     );
   }
@@ -253,6 +233,15 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   InputDecoration _inputStyle() {
     return InputDecoration(
       hintText: this.widget.placeholder,
+      prefixIcon: this.widget.prefixIcon,
+      suffixIcon: GestureDetector(
+        onTap: () {
+          _textEditingController.clear();
+          widget.afterClear();
+        },
+        // child: Icon(_inputIcon, color: this.widget.iconColor),
+        child: widget.icon,
+      ),
       border: InputBorder.none,
       contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
       hintStyle: TextStyle(
