@@ -186,7 +186,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
     return Center(
       child: Expanded(
         child: TextField(
-          decoration: widget.inputDecoration ?? _inputStyle(),
+          decoration: _inputStyle(),
           controller: _textEditingController,
           onSubmitted: (_) => _selectPlace(),
           onChanged: widget.onChanged,
