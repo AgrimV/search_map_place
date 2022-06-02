@@ -2,7 +2,7 @@ part of search_map_place;
 
 class SearchMapPlaceWidget extends StatefulWidget {
   SearchMapPlaceWidget({
-    @required this.apiKey,
+    required this.apiKey,
     this.placeholder = 'Search',
     this.icon = const Icon(Icons.search),
     this.hasClearButton = true,
@@ -27,7 +27,7 @@ class SearchMapPlaceWidget extends StatefulWidget {
             (location != null && radius != null)),
         super(key: key);
 
-  final Key key;
+  final Key? key;
 
   /// API Key of the Google Maps API.
   final String apiKey;
@@ -36,15 +36,15 @@ class SearchMapPlaceWidget extends StatefulWidget {
   final String placeholder;
 
   /// The callback that is called when one Place is selected by the user.
-  final void Function(Place place) onSelected;
+  final void Function(Place place)? onSelected;
 
   /// The callback that is called when the user taps on the search icon.
-  final void Function(Place place) onSearch;
+  final void Function(Place place)? onSearch;
 
   /// The callback that is called for every change in input
-  final void Function(String value) onChanged;
+  final void Function(String value)? onChanged;
 
-  final void Function() afterClear;
+  final void Function()? afterClear;
 
   /// Language used for the autocompletion.
   ///
@@ -54,22 +54,22 @@ class SearchMapPlaceWidget extends StatefulWidget {
   /// The point around which you wish to retrieve place information.
   ///
   /// If this value is provided, `radius` must be provided aswell.
-  final LatLng location;
+  final LatLng? location;
 
   /// The distance (in meters) within which to return place results. Note that setting a radius biases results to the indicated area, but may not fully restrict results to the specified area.
   ///
   /// If this value is provided, `location` must be provided aswell.
   ///
   /// See [Location Biasing and Location Restrict](https://developers.google.com/places/web-service/autocomplete#location_biasing) in the documentation.
-  final int radius;
+  final int? radius;
 
-  final Widget prefixIcon;
+  final Widget? prefixIcon;
 
   /// Returns only those places that are strictly within the region defined by location and radius. This is a restriction, rather than a bias, meaning that results outside this region will not be returned even if they match the user input.
   final bool strictBounds;
 
   /// Place type to filter the search. This is a tool that can be used if you only want to search for a specific type of location. If this no place type is provided, all types of places are searched. For more info on location types, check https://developers.google.com/places/web-service/autocomplete?#place_types
-  final PlaceType placeType;
+  final PlaceType? placeType;
 
   /// The initial icon to show in the search box
   final Widget icon;
@@ -87,12 +87,12 @@ class SearchMapPlaceWidget extends StatefulWidget {
   final bool darkMode;
 
   /// Used to define the style/decoration for the search container
-  final BoxDecoration decoration;
+  final BoxDecoration? decoration;
 
   /// Used to define the style/decoration for the text input field
-  final InputDecoration inputDecoration;
+  final InputDecoration? inputDecoration;
 
-  final TextStyle style;
+  final TextStyle? style;
 
   @override
   _SearchMapPlaceWidgetState createState() => _SearchMapPlaceWidgetState();
@@ -101,22 +101,22 @@ class SearchMapPlaceWidget extends StatefulWidget {
 class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
     with TickerProviderStateMixin {
   TextEditingController _textEditingController = TextEditingController();
-  AnimationController _animationController;
+  late AnimationController _animationController;
   // SearchContainer height.
-  Animation _containerHeight;
+  late Animation _containerHeight;
   // Place options opacity.
-  Animation _listOpacity;
+  late Animation _listOpacity;
 
   List<dynamic> _placePredictions = [];
   bool _isEditing = false;
-  Geocoding geocode;
+  late Geocoding geocode;
 
   String _tempInput = "";
   String _currentInput = "";
 
   FocusNode _fn = FocusNode();
 
-  CrossFadeState _crossFadeState;
+  late CrossFadeState _crossFadeState;
 
   @override
   void initState() {
@@ -166,7 +166,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   /*
   WIDGETS
   */
-  Widget _searchContainer({Widget child}) {
+  Widget _searchContainer({required Widget child}) {
     return Container(
       decoration: widget.decoration ?? _containerDecoration(),
       child: Column(
@@ -209,7 +209,7 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
               onTap: () {
                 if (_crossFadeState == CrossFadeState.showSecond) {
                   _textEditingController.clear();
-                  widget.afterClear();
+                  widget.afterClear!();
                 }
               },
               // child: Icon(_inputIcon, color: this.widget.iconColor),
@@ -307,12 +307,12 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
         "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=${widget.apiKey}&language=${widget.language}";
     if (widget.location != null && widget.radius != null) {
       url +=
-          "&location=${widget.location.latitude},${widget.location.longitude}&radius=${widget.radius}";
+          "&location=${widget.location!.latitude},${widget.location!.longitude}&radius=${widget.radius}";
       if (widget.strictBounds) {
         url += "&strictbounds";
       }
       if (widget.placeType != null) {
-        url += "&types=${widget.placeType.apiString}";
+        url += "&types=${widget.placeType!.apiString}";
       }
     }
 
@@ -332,23 +332,19 @@ class _SearchMapPlaceWidgetState extends State<SearchMapPlaceWidget>
   }
 
   /// Will be called when a user selects one of the Place options
-  void _selectPlace({Place prediction}) async {
-    if (prediction != null) {
-      _textEditingController.value = TextEditingValue(
-        text: prediction.description,
-        selection: TextSelection.collapsed(
-          offset: prediction.description.length,
-        ),
-      );
-    } else {
-      await Future.delayed(Duration(milliseconds: 500));
-    }
+  void _selectPlace({Place? prediction}) async {
+    _textEditingController.value = TextEditingValue(
+      text: prediction!.description,
+      selection: TextSelection.collapsed(
+        offset: prediction.description.length,
+      ),
+    );
 
     // Makes animation
     _closeSearch();
 
     // Calls the `onSelected` callback
-    if (prediction is Place) widget.onSelected(prediction);
+    widget.onSelected!(prediction);
   }
 
   /// Closes the expanded search box with predictions
